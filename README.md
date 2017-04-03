@@ -9,3 +9,4 @@ This project uses the tensorflow_hmm python library. To install,
 ```
 pip install tensorflow_hmm
 ```
+See [tensorflow_hmm](https://github.com/dwiel/tensorflow_hmm) for more details.
