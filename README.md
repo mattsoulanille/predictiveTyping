@@ -1,2 +1,2 @@
 # predictiveTyping
-Predictive typing project for cs325
+This project seeks to use hidden markov models to implement predictive typing. It is a project for cs325.
