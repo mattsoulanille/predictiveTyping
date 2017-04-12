@@ -20,44 +20,49 @@ def dptable(V, pathScores, states):
         print(" ".join("%.7s" % ("%f" % yy) for yy in y))
 
 
-def main():
-    p0 = np.array([0.6, 0.4])
+# Probability to start in a given state
+p0 = np.array([0.6, 0.4])
 
-    emi = np.array([[0.5, 0.1],
-                    [0.4, 0.3],
-                    [0.1, 0.6]])
 
-    trans = np.array([[0.7, 0.3],
-                      [0.4, 0.6]])
-    states = {0: 'Healthy', 1: 'Fever'}
-    obs = {0: 'normal', 1: 'cold', 2: 'dizzy'}
+# Probability of outputting the observation (indexed by row)
+# given that you are in the state (indexed by column)
+emi = np.array([[0.5, 0.1],
+                [0.4, 0.3],
+                [0.1, 0.6]])
 
-    obs_seq = np.array([0, 1, 2])
+# Probability of going from the state indexed by row
+# to the state indexed by column
+trans = np.array([[0.7, 0.3],
+                  [0.4, 0.6]])
+#states = {0: 'Healthy', 1: 'Fever'}
+states = ['Healthy', 'Fever']
+#obs = {0: 'normal', 1: 'cold', 2: 'dizzy'}
+obs = ['normal', 'cold', 'dizzy']
 
-    print()
-    print("TensorFlow Example: ")
+obs_seq = np.array([0, 1, 2])
 
-    tf_model = HMMTensorflow(trans, p0)
+print()
+print("TensorFlow Example: ")
 
-    y = emi[obs_seq]
-    tf_s_graph, tf_scores_graph = tf_model.viterbi_decode(y, len(y))
-    tf_s = tf.Session().run(tf_s_graph)
-    print("Most likely States: ", [obs[s] for s in tf_s])
+tf_model = HMMTensorflow(trans, p0)
 
-    tf_scores = [tf_scores_graph[0]]
-    tf_scores.extend([tf.Session().run(g) for g in tf_scores_graph[1:]])
-    pathScores = np.array(np.exp(tf_scores))
-    dptable(pathScores, pathScores, states)
+y = emi[obs_seq]
+tf_s_graph, tf_scores_graph = tf_model.viterbi_decode(y, len(y))
+tf_s = tf.Session().run(tf_s_graph)
+print("Most likely States: ", [obs[s] for s in tf_s])
 
-    print()
-    print("numpy Example: ")
-    np_model = HMMNumpy(trans, p0)
+tf_scores = [tf_scores_graph[0]]
+tf_scores.extend([tf.Session().run(g) for g in tf_scores_graph[1:]])
+pathScores = np.array(np.exp(tf_scores))
+dptable(pathScores, pathScores, states)
 
-    y = emi[obs_seq]
-    np_states, np_scores = np_model.viterbi_decode(y)
-    print("Most likely States: ", [obs[s] for s in np_states])
-    pathScores = np.array(np.exp(np_scores))
-    dptable(pathScores, pathScores, states)
+print()
+print("numpy Example: ")
+np_model = HMMNumpy(trans, p0)
 
-if __name__ == "__main__":
-    main()
+y = emi[obs_seq]
+np_states, np_scores = np_model.viterbi_decode(y)
+print("Most likely States: ", [obs[s] for s in np_states])
+pathScores = np.array(np.exp(np_scores))
+dptable(pathScores, pathScores, states)
+
