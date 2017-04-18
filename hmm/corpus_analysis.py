@@ -1,5 +1,8 @@
 from nltk.corpus import brown
-corpus = brown.tagged_words()[0:1000]
+
+if __name__ == "__main__":
+    corpus = brown.tagged_words()[0:1000]
+
 from collections import defaultdict
 
 
@@ -29,4 +32,9 @@ def make_observation_probabilities(corpus):
 
 
 def make_transition_probabilities(corpus):
-
+    floor = 10 ** -7
+    transitions = []
+    for i in range(len(corpus) - 1):
+        pair = [corpus[i][1], corpus[i+1][1]]
+        transitions.append(pair)
+    return make_probability(transitions, floor)
