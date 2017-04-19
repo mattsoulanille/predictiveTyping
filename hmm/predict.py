@@ -15,8 +15,10 @@ from model import model
 def predict():
     while (True):
         sent = raw_input("Enter sentence: ")
-        nextWords = trained.nextOverall(sent)[0:3]
-        print nextWords
+        if (sent != ""):
+            nextWords = trained.nextOverall(sent)[0:3]
+            for pair in nextWords:
+                print str(pair[0]) + "\t" + str(pair[1])
 
 
 if __name__ == "__main__":
