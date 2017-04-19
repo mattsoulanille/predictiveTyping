@@ -14,25 +14,32 @@ class model:
 
     def buildSemantic(self):
 
-        pairs = []
+        def gen_pairs():
+            for i in range(len(self.corpus) - 1):
+                pair = [self.corpus[i][0], self.corpus[i+1][0]]
+                yield pair
 
-        for i in range(len(self.corpus) - 1):
-            pair = [self.corpus[i][0], self.corpus[i+1][0]]
-            pairs.append(pair)
-
-        self.semantic_probabilities = self.make_probability(pairs, self.floor)
+        self.semantic_probabilities = self.make_probability(gen_pairs(), self.floor)
     
     def buildTransition(self):
-        transitions = []
-        for i in range(len(self.corpus) - 1):
-            pair = [self.corpus[i][1], self.corpus[i+1][1]]
-            transitions.append(pair)
 
-        self.transition_probabilities = self.make_probability(transitions, self.floor)
+        def gen_transitions():
+            for i in range(len(self.corpus) - 1):
+                pair = [self.corpus[i][1], self.corpus[i+1][1]]
+                yield pair
+
+        
+        self.transition_probabilities = self.make_probability(gen_transitions(),
+                                                              self.floor)
 
 
     def buildObservation(self):
-        self.observation_probabilities = self.make_probability([(t[1], t[0]) for t in self.corpus], self.floor)
+        def gen_observations():
+            for t in self.corpus:
+                yield (t[1], t[0])
+
+        self.observation_probabilities = self.make_probability(gen_observations(),
+                                                               self.floor)
 
         
     def _next(self, probabilities, t):
@@ -85,10 +92,12 @@ class model:
         totals = defaultdict(lambda: defaultdict( lambda: floor) )
         probabilities = defaultdict(lambda: defaultdict( lambda: floor) )
         
-        startpoints = set(x[0] for x in pairs)
-        endpoints = set(x[1] for x in pairs)
+        startpoints = set() # set(x[0] for x in pairs)
+        endpoints = set() # set(x[1] for x in pairs)
         
         for pair in pairs:
+            startpoints.add(pair[0])
+            endpoints.add(pair[1])
             totals[pair[0]][pair[1]] += 1
             
         for s in startpoints:

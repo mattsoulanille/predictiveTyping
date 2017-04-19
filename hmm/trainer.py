@@ -7,52 +7,27 @@ from nltk.corpus import brown
 corpus = brown.tagged_words()[0:1000]
 
 from collections import defaultdict
-
-def make_observation_probabilities(corpus):
-    tag_count = defaultdict(int)
-    transition_count = defaultdict(int)
-
-    for pair in corpus:
-        tag_count[pair[1]] += 1
-        
-        transition_count[(pair[0].lower(), pair[1])] += 1
-
-    floor = 10**-7
-    probabilities = defaultdict(lambda: floor)
-    for key in transition_count.keys():
-        probabilities[key] = float(transition_count[key]) / tag_count[key[1]]
-    
-    
-    words = list(set( [x[0] for x in transition_count.keys()] ))
-    return probabilities, words
+from corpus_analysis import *
 
 
-def make_transition_probabilities(corpus):
-    tag_count = defaultdict(int)
-    transition_count = defaultdict(int)
+emit_dict = make_observation_probabilities(corpus)
+trans_dict = make_transition_probabilities(corpus)
 
-    for i in range(len(corpus) - 1):
-        tag_count[corpus[i][1]] += 1
-        
-        transition = (corpus[i][1], corpus[i+1][1])
-        transition_count[transition] += 1
+# Get a set of all the words
+words = set()
+for x in emit_dict.values():
+    keys = set(x.keys())
+    words = words.union(keys)
 
-    tag_count[corpus[-1][1]] += 1
-
-
-    # Floor value for transitions
-    floor = 10**-6
-    probabilities = defaultdict(lambda: floor)
-    for key in transition_count.keys():
-        probabilities[key] = float(transition_count[key]) / tag_count[key[1]]
-
-    return probabilities, tag_count.keys()
+# Get a set of all the tags
+tags = set(trans_dict.keys())
+for x in trans_dict.values():
+    keys = set(x.keys())
+    tags = tags.union(keys)
+tags = list(tags)
 
 
 
-# Given DET, probability that you are "the" (or some other word)
-emit_dict, words = make_observation_probabilities(corpus)
-trans_dict, tags = make_transition_probabilities(corpus)
 
 def get_point(tagpair):
     return (tags.index(tagpair[0]), tags.index(tagpair[1]))

@@ -7,17 +7,9 @@ corpus = treebank.tagged_words()
 
 
 from nltk.tokenize import word_tokenize
-from corpus_analysis import *
 import pdb
 
 from model import model
-
-
-
-
-
-
-
 
 
 def predict():
