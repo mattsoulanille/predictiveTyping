@@ -1,16 +1,21 @@
 import nltk
 from collections import defaultdict
+from itertools import product
+import pdb
 
 class model:
-    def __init__(self, corpus, floor=10**-15):
-        
+    def __init__(self, corpus, tagger=nltk.pos_tag, floor=10**-15):
+        self.tagger = tagger
         self.corpus = corpus
         self.floor = floor
 
         
         self.buildSemantic()
+        print "built semantic"
         self.buildTransition()
+        print "built transition"
         self.buildObservation()
+        print "built Observation"
 
     def buildSemantic(self):
 
@@ -50,6 +55,9 @@ class model:
         return self._next(self.semantic_probabilities, word)
 
     def nextTransition(self, tag):
+        if (tag == u'PP'):
+            tag = u'PP$'
+            # tagger tags some things as PP but PP is not in brown. PP$ is closest
         return self._next(self.transition_probabilities, tag)
         
     def nextObservation(self, tag):
@@ -58,10 +66,8 @@ class model:
 
     def nextOverall(self, sentence):
         
-        from itertools import product
-        import pdb
         tokenized = nltk.word_tokenize(unicode(sentence))
-        tagged = nltk.pos_tag(tokenized)
+        tagged = self.tagger(tokenized)
         prev_tag = tagged[-1][1]
         prev_word = tagged[-1][0]
 
@@ -76,13 +82,19 @@ class model:
 
             for next_word, probability_o in o.iteritems():
 
-                probability_s = self.semantic_probabilities[prev_word][next_word]
-
-                total_probability = probability_t * probability_o * probability_s
+                # Super hacky
+                if next_word not in [u',',u'.']:
                 
-                probabilities.append( (next_word, total_probability) )
+                    probability_s = self.semantic_probabilities[prev_word][next_word]
+                    
+                    total_probability = probability_t * probability_o * (probability_s)
+                    
+                    probabilities.append( (next_word, total_probability) )
 
+        
         probabilities.sort(key=lambda x: -x[1])
+        
+
         return probabilities
         
 
@@ -104,5 +116,19 @@ class model:
             sum_s = sum( totals[s].values() )
             for e in endpoints:
                 probabilities[s][e] = totals[s][e] / sum_s
+
+        # def calc_for_startpoint(s):
+        #     sum_s = sum( totals[s].values() )
+        #     p_dict = defaultdict(lambda: floor)
+        #     for e in endpoints:
+        #         #probabilities[s][e] = totals[s][e] / sum_s
+        #         p_dict[e] = totals[s][e] / sum_s
+        #     return (s, p_dict)
+
+
+        # def add_to_probabilities(x):
+        #     probabilities[x[0]] = x[1]
+
+        # map(add_to_probabilities, self.pool.map(calc_for_startpoint, startpoints))
                     
         return probabilities

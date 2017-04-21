@@ -1,9 +1,9 @@
 import nltk, pdb
-#from nltk.corpus import brown
-#corpus = brown.tagged_words()
-from multiprocessing import Process, Pool
+from nltk.corpus import brown
+
+from pathos.multiprocessing import ProcessingPool as Pool
 from nltk.corpus import treebank
-corpus = treebank.tagged_words()
+
 
 
 from nltk.tokenize import word_tokenize
@@ -21,8 +21,17 @@ def predict():
                 print str(pair[0]) + "\t" + str(pair[1])
 
 
+from deepnlp import pos_tagger
+
 if __name__ == "__main__":
-    trained = model(corpus)
+    #corpus = treebank.tagged_words()
+    corpus = brown.tagged_words()[0:100000]
+    tagger = pos_tagger.load_model(lang = 'en')
+    
+    def tagger_function(words):
+        return [(x[0], x[1].upper()) for x in tagger.predict(words)]
+
+    trained = model(corpus, tagger_function)
 
 
     # s = Process(target=trained.buildSemantic)

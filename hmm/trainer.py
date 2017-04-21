@@ -40,12 +40,14 @@ trans_list = [ [0 for x in range(len(tags))] for y in range(len(tags)) ]
 
 
 
-for tagpair in trans_dict.keys():
+for start in trans_dict.keys():
     # Row must be first tag
     # Col must be second
     #states
-    point = get_point(tagpair)
-    trans_list[point[0]][point[1]] = trans_dict[tagpair]
+    for end in trans_dict[start].keys():
+        tagpair = (start, end);
+        point = get_point(tagpair)
+        trans_list[point[0]][point[1]] = trans_dict[tagpair]
 
 trans = np.array(trans_list)
 
