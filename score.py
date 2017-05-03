@@ -9,7 +9,8 @@ corpus_end = 100000
 
 training_corpus = brown.tagged_words()[corpus_start:corpus_end]
 #testing_corpus = brown.tagged_words()[test_start:test_end]
-testing_corpus = brown.sents()[100:200]
+#testing_corpus = brown.sents()[100:200]
+testing_corpus = brown.sents()[57230:57330]
 #training_corpus = brown.tagged_words()[0:100000]
 
 

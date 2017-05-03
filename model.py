@@ -2,26 +2,45 @@ import nltk
 from collections import defaultdict
 from itertools import product
 import pdb
+import dill
 
 class model:
-    def __init__(self, corpus, tagger=nltk.pos_tag, floor=10**-15):
+    def __init__(self, corpus, tagger=nltk.pos_tag, semantic_text=None, floor=10**-25):
+        if (semantic_text == None):
+            semantic_text = [x[0] for x in corpus]
         self.tagger = tagger
         self.corpus = corpus
         self.floor = floor
+        self.semantic_text = semantic_text
 
-        
-        self.buildSemantic()
-        print "built semantic"
-        self.buildTransition()
-        print "built transition"
-        self.buildObservation()
-        print "built Observation"
 
-    def buildSemantic(self):
+    def build(self, data=None):
+        if (data == None):
+            self.buildSemantic(self.semantic_text)
+            print "built semantic"
+            self.buildTransition()
+            print "built transition"
+            self.buildObservation()
+            print "built Observation"
+        else:
+            self.semantic_probabilities = data["semantic_probabilities"]
+            self.transition_probabilities = data["transition_probabilities"]
+            self.observation_probabilities = data["observation_probabilities"]
+
+
+    def save(self, saveFile):
+        data = {"semantic_probabilities": self.semantic_probabilities,
+                "transition_probabilities": self.transition_probabilities,
+                "observation_probabilities": self.observation_probabilities}
+
+        dill.dump(data, saveFile)
+                
+    def buildSemantic(self, semantic_text):
 
         def gen_pairs():
-            for i in range(len(self.corpus) - 1):
-                pair = [self.corpus[i][0], self.corpus[i+1][0]]
+            for i in range(len(semantic_text) - 1):
+                #pair = [semantic_text[i][0], semantic_text[i+1][0]]
+                pair = [semantic_text[i], semantic_text[i+1]]
                 yield pair
 
         self.semantic_probabilities = self.make_probability(gen_pairs(), self.floor)
@@ -87,7 +106,7 @@ class model:
                 
                     probability_s = self.semantic_probabilities[prev_word][next_word]
                     
-                    total_probability = probability_t * probability_o * (probability_s)
+                    total_probability = probability_t * probability_o * (probability_s) ** 2
                     
                     probabilities.append( (next_word, total_probability) )
 

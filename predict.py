@@ -1,11 +1,6 @@
 import nltk, pdb
 from nltk.corpus import brown
 
-from pathos.multiprocessing import ProcessingPool as Pool
-from nltk.corpus import treebank
-
-
-
 from nltk.tokenize import word_tokenize
 import pdb
 
@@ -22,20 +17,31 @@ def predict():
 
 
 from deepnlp import pos_tagger
-
 if __name__ == "__main__":
-    #corpus = treebank.tagged_words()
+    import argparse
+    import dill
+    parser = argparse.ArgumentParser(description='Predictive typing')
+    parser.add_argument('-b', '--build', action="store_true")
+    args = parser.parse_args()
+    
+    filePath = "models/brownCorpus.p"
+    #corpus = brown.tagged_words()[0:1000]
     corpus = brown.tagged_words()[0:100000]
     tagger = pos_tagger.load_model(lang = 'en')
-    
     def tagger_function(words):
         return [(x[0], x[1].upper()) for x in tagger.predict(words)]
 
     trained = model(corpus, tagger_function)
 
+    if (args.build):
+        
+        trained.build()
+        with open(filePath, "wb") as saveFile:
+            trained.save(saveFile)
+            
+    else:
+        data = dill.load(open(filePath, "rb"))
+        trained.build(data)
 
-    # s = Process(target=trained.buildSemantic)
-    # t = Process(target=trained.buildTransition)
-    # o = Process(target=trained.buildObservation)
-
-    predict()
+        predict()
+    
