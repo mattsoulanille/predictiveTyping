@@ -39,6 +39,7 @@ The ```score.py``` program scores a model of size 100,000 and can be run as foll
 ```
 python score.py
 ```
+This can easily take 10 minutes and lots of ram.
 
 # Project Report
 
